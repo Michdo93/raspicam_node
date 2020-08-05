@@ -9,6 +9,10 @@ from sensor_msgs.msg import CompressedImage
 from raspicam_node.msg import MotionVectors
 from cv_bridge import CvBridge, CvBridgeError
 
+# extendet to get hostname
+import re
+import socket
+
 # Motion vectors with SAD values above threshold will be ignored:
 SAD_THRESHOLD = 650
 

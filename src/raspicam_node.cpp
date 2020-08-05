@@ -79,6 +79,10 @@ int main(int argc, char** argv) {
 
 #include "mmal_cxx_helper.h"
 
+// get hostname
+#include <unistd.h>
+#include <limits.h>
+
 static constexpr int IMG_BUFFER_SIZE = 10 * 1024 * 1024;  // 10 MB
 
 // Video format information
@@ -1353,21 +1357,30 @@ int main(int argc, char** argv) {
   double min_freq = desired_freq * 0.95;
   double max_freq = desired_freq * 1.05;
 
+  char hostname[HOST_NAME_MAX];
+
+  gethostname(hostname, HOST_NAME_MAX);
+
+  std::string image_str = std::string(hostname) + "/image";
+  std::string motion_vectors_str = std::string(hostname) + "/motion_vectors";
+  std::string image_compressed_str = std::string(hostname) + "/image/compressed";
+  std::string camera_info_str = std::string(hostname) + "/camera_info";
+
   if (state_srv.enable_raw_pub){
-    auto image_pub = nh_topics.advertise<sensor_msgs::Image>("image", 1);
+    auto image_pub = nh_topics.advertise<sensor_msgs::Image>(image_str, 1);
     image.pub.reset(new DiagnosedPublisher<sensor_msgs::Image>(
         image_pub, state_srv.updater, FrequencyStatusParam(&min_freq, &max_freq, 0.1, 10), TimeStampStatusParam(0, 0.2)));
   }
   if (state_srv.enable_imv_pub) {
-    auto imv_pub = nh_topics.advertise<raspicam_node::MotionVectors>("motion_vectors", 1);
+    auto imv_pub = nh_topics.advertise<raspicam_node::MotionVectors>(motion_vectors_str, 1);
     motion_vectors.pub.reset(new DiagnosedPublisher<raspicam_node::MotionVectors>(
         imv_pub, state_srv.updater, FrequencyStatusParam(&min_freq, &max_freq, 0.1, 10), TimeStampStatusParam(0, 0.2)));
   }
-  auto cimage_pub = nh_topics.advertise<sensor_msgs::CompressedImage>("image/compressed", 1);
+  auto cimage_pub = nh_topics.advertise<sensor_msgs::CompressedImage>(image_compressed_str, 1);
   compressed_image.pub.reset(new DiagnosedPublisher<sensor_msgs::CompressedImage>(
       cimage_pub, state_srv.updater, FrequencyStatusParam(&min_freq, &max_freq, 0.1, 10), TimeStampStatusParam(0, 0.2)));
   
-  camera_info_pub = nh_topics.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
+  camera_info_pub = nh_topics.advertise<sensor_msgs::CameraInfo>(camera_info_str, 1);
 
   dynamic_reconfigure::Server<raspicam_node::CameraConfig> server;
   dynamic_reconfigure::Server<raspicam_node::CameraConfig>::CallbackType f;
