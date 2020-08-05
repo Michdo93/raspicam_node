@@ -21,6 +21,20 @@ After that you have to reboot:
 sudo reboot
 ```
 
+In Python you can get the hostname with:
+```
+import re
+import socket
+
+...
+
+hostname = re.sub("-", "_", socket.gethostname())
+```
+
+So within the robot you can subscribe with `'/raspicam_node/' + hostname + '/image/compressed'`
+
+From your workstation or from other robots you could easily use parameters to set the host from which you want to subscribe.
+
 ## Build Intructions
 
 The original node is primarily supported on ROS Kinetic, and Ubuntu 16.04. This instructions are made for ROS Melodic and Raspbian Buster. So we'll have to build it from source.
