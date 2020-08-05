@@ -75,8 +75,9 @@ def main():
 	global color_map
 	color_map = create_colormap(SAD_THRESHOLD)
 
-	img_topic = '/raspicam_node/image/compressed'
-	imv_topic = '/raspicam_node/motion_vectors'
+	hostname = re.sub("-", "_", socket.gethostname())
+	img_topic = '/raspicam_node/' + hostname + '/image/compressed'
+	imv_topic = '/raspicam_node/' + hostname + '/motion_vectors'
 
 	rospy.init_node('imv_view')
 	rospy.Subscriber(img_topic, CompressedImage, img_callback)
