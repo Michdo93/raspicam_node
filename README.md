@@ -1,23 +1,85 @@
 # raspicam_node
 
+Forked from here: https://github.com/UbiquityRobotics/raspicam_node
+
 ROS node for the Raspberry Pi Camera Module. Works with both the V1.x and V2.x versions of the module. We recommend using the v2.x cameras as they have better auto gain, and the general image quality is better.
 
-## Installation
+Available for ROS Melodic on Raspbian Buster.
 
-A binary can be found at https://packages.ubiquityrobotics.com/ follow the instructions there to add the repository.
+You can use it on different ROS robots in the same network. It will seperate the robots by its hostname. So please make sure, that the robots have different hostnames.
 
-Then run `sudo apt install ros-kinetic-raspicam-node`
+You can subscribe as example from `/raspicam_node/<hostname>/image/compressed` instead of `/raspicam_node/image/compressed`.
+
+You can change the hostname with `sudo hostname -b <hostname>`
+
+Then you can check if it changed with `hostname` and print it to your console.
+
+Else you can change it with `sudo nano /etc/hosts`. Save it with `CTRL+O` and return with `CTRL+X`.
+
+After that you have to reboot:
+```
+sudo reboot
+```
 
 ## Build Intructions
-If you want to build from source instead of using the binary follow this section.
 
-This node is primarily supported on ROS Kinetic, and Ubuntu 16.04, and that is what these instuctions presume.
+The original node is primarily supported on ROS Kinetic, and Ubuntu 16.04. This instructions are made for ROS Melodic and Raspbian Buster. So we'll have to build it from source.
 
-Go to your catkin_ws `cd ~/catkin_ws/src`.
+Make sure that your user is in the `video` group by running `groups|grep video`. If not type following in your command line: `sudo usermod -a -G video <username>`
+
+Now install following dependecies for Python:
+
+```
+sudo -H pip install -U pygithub
+sudo -H pip install -U pygithub3
+sudo -H pip install -U chainercv
+```
+
+You have first to install pygithub because pygithub 3 couldn't be found if not.
+
+Go to your ros_catkin_ws `cd ~/ros_catkin_ws/`.
+
+After that we have to use the rosinstall_generator to add some new ROS Packages.
+
+```
+rosinstall_generator compressed_image_transport --rosdistro melodic --deps --wet-only --tar > melodic-compressed_image_transport-wet.rosinstall
+
+rosinstall_generator camera_info_manager --rosdistro melodic --deps --wet-only --tar > melodic-camera_info_manager-wet.rosinstall
+
+rosinstall_generator dynamic_reconfigure --rosdistro melodic --deps --wet-only --tar > melodic-dynamic_reconfigure-wet.rosinstall
+```
+
+Then we have to merge it to our current ROS installation.
+
+```
+wstool merge -t src melodic-compressed_image_transport-wet.rosinstall
+wstool merge -t src melodic-camera_info_manager-wet.rosinstall
+wstool merge -t src melodic-dynamic_reconfigure-wet.rosinstall
+```
+
+And then we have to update it with `wstool update -t src`
+
+Then you have to install the rosdeps again:
+
+```
+rosdep install --from-paths src --ignore-src --rosdistro melodic -y -r
+```
+
+Now we can run the build process again with:
+
+```
+sudo ./src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/melodic
+```
+
+Go to your catkin_ws with `cd ~/catkin_ws/src`
 
 Download the source for this node by running
 
-`git clone https://github.com/UbiquityRobotics/raspicam_node.git`
+`git clone https://github.com/Michdo93/raspicam_node.git`
+
+Normally you should skip the follwing part with updating the rosdep:
+
+------------------------------------------------------------------------------------------
 
 There are some dependencies that are not recognized by ros, so you need to create the file `/etc/ros/rosdep/sources.list.d/30-ubiquity.list` and add this to it.
 ```
@@ -26,11 +88,24 @@ yaml https://raw.githubusercontent.com/UbiquityRobotics/rosdep/master/raspberry-
 
 Then run `rosdep update`.
 
+------------------------------------------------------------------------------------------
+
+If skipping this part does not work try to install it like in the description above or to install it with the apt-package manager like this:
+
+```
+sudo apt-get install libraspberrypi0
+sudo apt-get install libraspberrypi-dev
+sudo apt-get install libpigpio-dev
+sudo apt-get install libpigpiod-if-dev
+```
+
+Normally on a Raspberry Pi with a Raspbian OS this packages should be installed by default.
+
 Install the ros dependencies,
 
 ```
 cd ~/catkin_ws
-rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y
+rosdep install --from-paths src --ignore-src --rosdistro=melodic -y
 ```
 
 Compile the code with `catkin_make`.
@@ -56,15 +131,6 @@ rosrun rqt_reconfigure rqt_reconfigure
 It should bring up a user interface like the one below.  Paramaters can be dynamically adjusted via this interface.
 
 ![rqt_reconfigure](reconfigure_raspicam_node.png)
-
-
-## Troubleshooting
-1. Make sure that your user is in the `video` group by running `groups|grep video`.
-
-2. If you get an error saying: `Failed to create camera component`,
-make sure that the camera cable is properly seated on both ends, and that the cable is not missing any pins.
-
-3. If the publish rate of the image over the network is lower than expected, consider using a lower resolution to reduce the amount of bandwidth required.
 
 ## Node Information
 
