@@ -36,7 +36,7 @@ So within the robot you can subscribe with `'/' + hostname + '/raspicam/image/co
 From your workstation or from other robots you could easily use parameters to set the host from which you want to subscribe.
 
 ```
-hostname = "robotcar")
+hostname = "robotcar"
 ```
 
 ## Build Intructions
