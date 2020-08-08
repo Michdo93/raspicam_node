@@ -8,7 +8,7 @@ Available for ROS Melodic on Raspbian Buster.
 
 You can use it on different ROS robots in the same network. It will seperate the robots by its hostname. So please make sure, that the robots have different hostnames.
 
-You can subscribe as example from `/raspicam_node/<hostname>/image/compressed` instead of `/raspicam_node/image/compressed`.
+You can subscribe as example from `/<hostname>/raspicam/image/compressed` instead of `/raspicam_node/image/compressed`.
 
 You can change the hostname with `sudo hostname -b <hostname>`
 
