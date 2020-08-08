@@ -31,9 +31,13 @@ import socket
 hostname = re.sub("-", "_", socket.gethostname())
 ```
 
-So within the robot you can subscribe with `'/raspicam_node/' + hostname + '/image/compressed'`
+So within the robot you can subscribe with `'/' + hostname + '/raspicam/image/compressed'`
 
 From your workstation or from other robots you could easily use parameters to set the host from which you want to subscribe.
+
+```
+hostname = "robotcar")
+```
 
 ## Build Intructions
 
