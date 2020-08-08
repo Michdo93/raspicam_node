@@ -1361,10 +1361,10 @@ int main(int argc, char** argv) {
 
   gethostname(hostname, HOST_NAME_MAX);
 
-  std::string image_str = std::string(hostname) + "/image";
-  std::string motion_vectors_str = std::string(hostname) + "/motion_vectors";
-  std::string image_compressed_str = std::string(hostname) + "/image/compressed";
-  std::string camera_info_str = std::string(hostname) + "/camera_info";
+  std::string image_str = "/" + std::string(hostname) + "/raspicam/image";
+  std::string motion_vectors_str = "/" + std::string(hostname) + "/raspicam/motion_vectors";
+  std::string image_compressed_str = "/" + std::string(hostname) + "/raspicam/image/compressed";
+  std::string camera_info_str = "/" + std::string(hostname) + "/raspicam/camera_info";
 
   if (state_srv.enable_raw_pub){
     auto image_pub = nh_topics.advertise<sensor_msgs::Image>(image_str, 1);
